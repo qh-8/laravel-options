@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/qh-8/laravel-options.svg?style=flat-square)](https://packagist.org/packages/qh-8/laravel-options)
 [![Total Downloads](https://img.shields.io/packagist/dt/qh-8/laravel-options.svg?style=flat-square)](https://packagist.org/packages/qh-8/laravel-options)
-![GitHub Actions](https://github.com/qh-8/laravel-options/actions/workflows/main.yml/badge.svg)
+![GitHub Actions](https://github.com/qh-8/laravel-options/actions/workflows/run-tests.yml/badge.svg)
 
 This package allows you to store options in a repository (database).
 
