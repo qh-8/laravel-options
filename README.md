@@ -16,13 +16,13 @@ composer require qh-8/laravel-options
 
 ## Usage
 
-Publish the migration files
+Publish the migration file
 
 ```bash
 php artisan vendor:publish --tag=option-migrations
 ```
 
-Run migrate to create `options` table
+Create the `options` table via artisan migrate command
 
 ```bash
 php artisan migrate
@@ -31,28 +31,28 @@ php artisan migrate
 Basic usage
 
 ```php
-// via helper
-option('key', 'default'); // get an option with default value.
-option(['key' => 'default']); // set options.
+// Via helper.
+option('key', 'default'); // Get an option with default value.
+option(['key' => 'default']); // Set options.
 
-// via service
-$this->app['options']->has('key'); // check option exists.
-$this->app['options']->get('key', 'default'); // get an option with default.
-$this->app['options']->set('key', 'value'); // set an option.
-$this->app['options']->set(['key' => 'value']); // set many options.
-$this->app['options']->setMany(['key' => 'value']); // set many options.
-$this->app['options']->lock('key'); // lock an option by key.
-$this->app['options']->unlock('key'); // unlock an option by key.
-$this->app['options']->remove('key'); // delete an option by key.
-$this->app['options']->all(); // get all autoload options.
-$this->app['options']->toArray(); // same all().
-$this->app['options']->toJSon(); // same all() but json format.
-$this->app['options']['key'] // array access: offsetGet
-$this->app['options']['key'] = 'value' // array access: offsetSet
-isset($this->app['options']['key']) // array access: offsetExists
-unset($this->app['options']['key']) // array access: offsetUnset
+// Via service.
+$this->app['options']->has('key'); // Check option exists.
+$this->app['options']->get('key', 'default'); // Get an option with default.
+$this->app['options']->set('key', 'value'); // Set an option.
+$this->app['options']->set(['key' => 'value']); // Set many options.
+$this->app['options']->setMany(['key' => 'value']); // Set many options.
+$this->app['options']->lock('key'); // Lock an option by key.
+$this->app['options']->unlock('key'); // Unlock an option by key.
+$this->app['options']->remove('key'); // Delete an option by key.
+$this->app['options']->all(); // Get all autoload options.
+$this->app['options']->toArray(); // Same all().
+$this->app['options']->toJSon(); // Same all() but json format.
+$this->app['options']['key'] // Array access: offsetGet
+$this->app['options']['key'] = 'value' // Array access: offsetSet.
+isset($this->app['options']['key']) // Array access: offsetExists.
+unset($this->app['options']['key']) // Array access: offsetUnset.
 
-// via facade
+// Via facade.
 \Option::get('key');
 \Qh\LaravelOptions\Facades\Option::get('key');
 
