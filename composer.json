@@ -1,0 +1,59 @@
+{
+    "name": "qh-8/laravel-options",
+    "description": "Store Laravel application options",
+    "keywords": [
+        "qh-8",
+        "laravel-options"
+    ],
+    "homepage": "https://github.com/qh-8/laravel-options",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dinh Quoc Han",
+            "email": "dqh@dinhquochan.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0|^8.1",
+        "illuminate/database": "^9.0",
+        "doctrine/dbal": "^3.2"
+    },
+    "require-dev": {
+        "laravel/pint": "^0.2.4",
+        "mockery/mockery": "^1.4",
+        "orchestra/testbench": "^7.6",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qh\\LaravelOptions\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Qh\\LaravelOptions\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Qh\\LaravelOptions\\LaravelOptionsServiceProvider"
+            ],
+            "aliases": {
+                "Option": "Qh\\LaravelOptions\\OptionFacade"
+            }
+        }
+    }
+}
