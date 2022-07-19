@@ -51,11 +51,6 @@ $this->app['options']['key'] // Array access: offsetGet
 $this->app['options']['key'] = 'value' // Array access: offsetSet.
 isset($this->app['options']['key']) // Array access: offsetExists.
 unset($this->app['options']['key']) // Array access: offsetUnset.
-
-// Via facade.
-\Option::get('key');
-\Qh\LaravelOptions\Facades\Option::get('key');
-
 ```
 
 ### Testing
