@@ -5,7 +5,6 @@ namespace Qh\LaravelOptions\Tests;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Qh\LaravelOptions\Facades\Option;
 use Qh\LaravelOptions\Repository;
 
 class OptionsTest extends TestCase
