@@ -50,10 +50,7 @@
         "laravel": {
             "providers": [
                 "Qh\\LaravelOptions\\LaravelOptionsServiceProvider"
-            ],
-            "aliases": {
-                "Option": "Qh\\LaravelOptions\\OptionFacade"
-            }
+            ]
         }
     }
 }

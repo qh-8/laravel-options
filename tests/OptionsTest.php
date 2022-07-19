@@ -185,9 +185,4 @@ class OptionsTest extends TestCase
         option(['key' => 'value']);
         $this->assertSame('value', option('key'));
     }
-
-    public function testFacadeInstance()
-    {
-        $this->assertInstanceOf(Repository::class, Option::getFacadeRoot());
-    }
 }
