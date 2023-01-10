@@ -34,6 +34,7 @@ Basic usage
 // Via helper.
 option('key', 'default'); // Get an option with default value.
 option(['key' => 'default']); // Set options.
+option()->save(); // Delete, update or insert to database.
 
 // Via service.
 $this->app['options']->has('key'); // Check option exists.

@@ -22,11 +22,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
 
     public function boot()
     {
-        if (! $this->determineIfOptionsTableExists()) {
-            return;
-        }
-
-        $this->ensureOptionsIsLoaded();
+        rescue(fn () => $this->ensureOptionsIsLoaded());
     }
 
     public function has(string $key): bool
@@ -36,7 +32,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         return $this->items->has($key);
     }
 
-    public function get(string $key, $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (! $this->items) {
             return null;
@@ -50,51 +46,55 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
 
         if ($item) {
             $this->items->put($key, $item);
+
             return $item->payload;
         }
 
         return $default;
     }
 
-    public function set(array|string $key, $value = null, bool $autoload = false, bool $isLock = false)
+    public function set(array|string $key, $value = null, bool $autoload = null, bool $isLock = null): void
     {
         if (is_array($key)) {
-            $this->setMany($key);
+            $this->setMany($key, $autoload, $isLock);
             return;
         }
 
-        $option = Option::query()->firstOrNew(['name' => $key]);
+        $option = $this->items->has($key)
+            ? $this->items->get($key)
+            : Option::query()->firstOrNew(['name' => $key]);
 
-        if ($option->exists && $option->locked) {
+        if ($option->locked) {
             return;
         }
 
         $option->payload = $value;
-        $option->locked = $isLock;
-        $option->autoload = $autoload;
-        $option->save();
+        $option->locked = is_null($isLock)
+            ? ($option->exists ? $option->locked : false)
+            : $isLock;
+        $option->autoload = is_null($autoload)
+            ? ($option->exists ? $option->autoload : false)
+            : $autoload;
 
         $this->items->put($key, $option);
     }
 
-    public function setMany(array $values)
+    public function setMany(array $values, bool $autoload = null, bool $isLock = null): void
     {
-        $existsLockedItems = Option::query()->where('locked', true)->get()->keyBy('name');
-
-        $values = Collection::make($values)
-            ->filter(fn ($_, $key) => !$existsLockedItems->has($key))
-            ->map(fn ($option, $key) => [
+        Collection::make($values)
+            ->map(fn ($value, $key) => [
                 'name' => $key,
-                'payload' => $option,
-                'autoload' => false,
-                'locked' => false,
+                'payload' => $value,
             ])
-            ->toArray();
-
-        Option::query()->upsert($values, ['name'], ['payload']);
+            ->each(fn ($setting) => $this->set(
+                $setting['name'],
+                $setting['payload'],
+                $autoload,
+                $isLock
+            ));
     }
 
-    public function lock(array|string $key)
+    public function lock(array|string $key): void
     {
         if (is_array($key)) {
             foreach ($key as $option) {
@@ -114,10 +114,9 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         }
 
         $item->locked = true;
-        $item->save();
     }
 
-    public function unlock(array|string $key)
+    public function unlock(array|string $key): void
     {
         if (is_array($key)) {
             foreach ($key as $option) {
@@ -137,10 +136,9 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         }
 
         $item->locked = false;
-        $item->save();
     }
 
-    public function remove(array|string $key)
+    public function remove(array|string $key): void
     {
         if (is_array($key)) {
             foreach ($key as $option) {
@@ -153,7 +151,6 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
             return;
         }
 
-        $this->items->get($key)->delete();
         $this->items->forget($key);
     }
 
@@ -162,32 +159,59 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         return $this->items->mapWithKeys(fn (Option $option) => [$option->name => $option->payload])->toArray();
     }
 
-    public function reload()
+    public function reload(): void
     {
-        $this->items = Option::query()->where('autoload', true)->get()->keyBy('name');
+        $this->items = Option::query()
+            ->where('autoload', true)
+            ->get()
+            ->keyBy('name');
     }
 
-    public function offsetExists($key): bool
+    public function save(): void
     {
-        return $this->has($key);
+        $values = $this->items
+            ->map(fn (Option $option, string $name) => [
+                'name' => $name,
+                'payload' => $option->getAttributes()['payload'],
+                'locked' => $option->locked ? 1 : 0,
+                'autoload' => $option->autoload ? 1 : 0,
+            ])
+            ->values()
+            ->toArray();
+
+        Option::query()->upsert(
+            $values,
+            ['name'],
+            ['payload', 'locked', 'autoload']
+        );
+
+        Option::query()->whereNotIn(
+            'name',
+            $this->items->keys()->toArray()
+        )->delete();
     }
 
-    public function offsetGet($key): mixed
+    public function offsetExists($offset): bool
     {
-        return $this->get($key);
+        return $this->has($offset);
     }
 
-    public function offsetSet($key, $value): void
+    public function offsetGet($offset): mixed
     {
-        $this->set($key, $value);
+        return $this->get($offset);
     }
 
-    public function offsetUnset($key): void
+    public function offsetSet($offset, $value): void
     {
-        $this->set($key, null);
+        $this->set($offset, $value);
     }
 
-    public function toArray()
+    public function offsetUnset($offset): void
+    {
+        $this->set($offset);
+    }
+
+    public function toArray(): array
     {
         return $this->all();
     }
@@ -204,11 +228,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         }
 
         $this->initialized = true;
-        $this->reload();
-    }
 
-    protected function determineIfOptionsTableExists()
-    {
-        return $this->container['db.schema']->hasTable('options');
+        $this->reload();
     }
 }

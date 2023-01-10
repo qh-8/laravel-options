@@ -4,19 +4,19 @@ namespace Qh\LaravelOptions\Contracts;
 
 interface Repository
 {
-    public function get(string $key, $detault = null);
+    public function get(string $key, $default = null): mixed;
 
-    public function set(array|string $key, $value = null, bool $autoload = false, bool $isLock = false);
+    public function set(array|string $key, $value = null, bool $autoload = false, bool $isLock = false): void;
 
-    public function setMany(array $options);
+    public function setMany(array $values): void;
 
-    public function lock(array|string $key);
+    public function lock(array|string $key): void;
 
-    public function unlock(array|string $key);
+    public function unlock(array|string $key): void;
 
-    public function remove(array|string $key);
+    public function remove(array|string $key): void;
 
     public function all(): array;
 
-    public function reload();
+    public function reload(): void;
 }
