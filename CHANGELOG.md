@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-options` will be documented in this file
 
+## Release v1.0.0 - 2023-01-10
+
+- Add: method `save()` #5
+- Add: facade class `Option`
+- Improve: update, insert and remove options to database
+
 ## Release v0.1.2 - 2022-07-19
 
 - Add github workflow for `laravel/pint` (#2)
