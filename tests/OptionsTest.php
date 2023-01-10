@@ -2,8 +2,8 @@
 
 namespace Qh\LaravelOptions\Tests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Qh\LaravelOptions\Repository;
 
@@ -11,26 +11,28 @@ class OptionsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @var \Qh\LaravelOptions\Repository */
-    protected $repository;
+    protected Repository $repository;
 
     public function setUp(): void
     {
         parent::setUp();
 
+        $now = Carbon::now();
+
         DB::table('options')->insert([
-            ['name' => 'foo', 'payload' => 'bar', 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'bar', 'payload' => 'baz', 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'baz', 'payload' => 'bat', 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'boolean', 'payload' => json_encode(true), 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'array', 'payload' => json_encode(['xxx', 'yyy']), 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'foo', 'payload' => 'bar', 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'bar', 'payload' => 'baz', 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'baz', 'payload' => 'bat', 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'boolean', 'payload' => json_encode(true), 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'array', 'payload' => json_encode(['xxx', 'yyy']), 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'associate', 'payload' => json_encode([
                 'x' => 'xxx',
                 'y' => 'yyy',
-            ]), 'autoload' => 1, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ]), 'autoload' => 1, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now
+            ],
 
-            ['name' => 'no_autoload', 'payload' => 'foo', 'autoload' => 0, 'locked' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'locked', 'payload' => 'foo', 'autoload' => 1, 'locked' => 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'no_autoload', 'payload' => 'foo', 'autoload' => 0, 'locked' => 0, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'locked', 'payload' => 'foo', 'autoload' => 1, 'locked' => 1, 'created_at' => $now, 'updated_at' => $now],
         ]);
 
         $this->repository = $this->app['options'];
@@ -183,5 +185,16 @@ class OptionsTest extends TestCase
     {
         option(['key' => 'value']);
         $this->assertSame('value', option('key'));
+    }
+
+    public function testSave()
+    {
+        option(['key' => 'value']);
+
+        $this->assertDatabaseMissing('options', ['name' => 'key']);
+
+        option()->save();
+
+        $this->assertDatabaseHas('options', ['name' => 'key']);
     }
 }

@@ -3,6 +3,7 @@
 namespace Qh\LaravelOptions\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Qh\LaravelOptions\Casts\OptionPayload;
 
 class Option extends Model
 {
@@ -12,7 +13,7 @@ class Option extends Model
     ];
 
     protected $casts = [
-        'payload' => OptionPayloadCaster::class,
+        'payload' => OptionPayload::class,
         'locked' => 'bool',
         'autoload' => 'bool',
     ];
