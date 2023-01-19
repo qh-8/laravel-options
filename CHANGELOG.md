@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-options` will be documented in this file
 
+## Release v1.0.1 - 2023-01-19
+
+- Fix call in migrations
+
 ## Release v1.0.0 - 2023-01-10
 
 - Add: method `save()` #5
