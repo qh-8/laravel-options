@@ -14,10 +14,11 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
 {
     protected bool $initialized = false;
 
-    protected ?Collection $items = null;
+    protected ?Collection $items;
 
     public function __construct(protected Container $container)
     {
+        $this->items = new Collection();
     }
 
     public function boot()
