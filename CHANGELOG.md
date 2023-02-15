@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-options` will be documented in this file
 
-## Release v1.0.2 - 2023-01-19
+## Release v1.0.2 - 2023-02-15
 
 - Fix typo docblock facade
 - Add support Laravel 10
