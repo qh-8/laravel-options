@@ -7,21 +7,24 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Collection;
+use JsonSerializable;
 use Qh\LaravelOptions\Contracts\Repository as RepositoryContract;
 use Qh\LaravelOptions\Models\Option;
 
-class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
+class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, RepositoryContract
 {
     protected bool $initialized = false;
 
-    protected ?Collection $items;
+    protected Collection $items;
+
+    protected array $willRemoved = [];
 
     public function __construct(protected Container $container)
     {
         $this->items = new Collection();
     }
 
-    public function boot()
+    public function boot(): void
     {
         rescue(fn () => $this->ensureOptionsIsLoaded());
     }
@@ -35,10 +38,6 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
 
     public function get(string $key, mixed $default = null): mixed
     {
-        if (! $this->items) {
-            return null;
-        }
-
         if ($this->items->has($key)) {
             return $this->items->get($key)->payload;
         }
@@ -153,6 +152,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         }
 
         $this->items->forget($key);
+        $this->willRemoved[] = $key;
     }
 
     public function all(): array
@@ -178,7 +178,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
                 'autoload' => $option->autoload ? 1 : 0,
             ])
             ->values()
-            ->toArray();
+            ->all();
 
         Option::query()->upsert(
             $values,
@@ -186,10 +186,11 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
             ['payload', 'locked', 'autoload']
         );
 
-        Option::query()->whereNotIn(
-            'name',
-            $this->items->keys()->toArray()
-        )->delete();
+        Option::query()
+            ->whereIn('name', $this->willRemoved)
+            ->delete();
+
+        $this->willRemoved = [];
     }
 
     public function offsetExists($offset): bool
@@ -217,12 +218,17 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, RepositoryContract
         return $this->all();
     }
 
-    public function toJson($options = 0)
+    public function toJson($options = 0): bool|string
     {
         return json_encode($this->toArray());
     }
 
-    protected function ensureOptionsIsLoaded()
+    public function jsonSerialize(): bool|string
+    {
+        return $this->toJson();
+    }
+
+    protected function ensureOptionsIsLoaded(): void
     {
         if ($this->initialized) {
             return;

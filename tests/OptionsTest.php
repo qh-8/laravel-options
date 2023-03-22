@@ -179,22 +179,29 @@ class OptionsTest extends TestCase
     public function testHelperGet()
     {
         $this->assertSame('bar', option('foo'));
+        $this->assertInstanceOf(Repository::class, option());
     }
 
     public function testHelperSet()
     {
-        option(['key' => 'value']);
-        $this->assertSame('value', option('key'));
+        $this->repository->set(['key' => 'value']);
+        $this->assertSame('value', $this->repository->get('key'));
     }
 
     public function testSave()
     {
-        option(['key' => 'value']);
+        $this->repository->set(['key' => 'value']);
 
         $this->assertDatabaseMissing('options', ['name' => 'key']);
 
-        option()->save();
+        $this->repository->save();
 
         $this->assertDatabaseHas('options', ['name' => 'key']);
+
+        $this->repository->remove(['key']);
+
+        $this->assertDatabaseHas('options', ['name' => 'foo']);
+
+        $this->assertDatabaseHas('options', ['name' => 'no_autoload']);
     }
 }
