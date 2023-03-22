@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-options` will be documented in this file
 
+### Release version 2.1.0 - 2023-03-22
+
+- Fix non-autoload options will be removed after saved (#7)
+
 ## Release version 2.0.0 - 2023-02-15
 
 - Fix typo docblock facade
