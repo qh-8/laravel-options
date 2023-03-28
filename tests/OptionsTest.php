@@ -218,6 +218,7 @@ class OptionsTest extends TestCase
 
     public function testOnlyAutoload()
     {
+        $this->repository->setEagerLoad(false);
         $this->repository->setOnlyAutoload(false);
 
         $this->repository->reload();
