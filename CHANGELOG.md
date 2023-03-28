@@ -11,6 +11,13 @@ All notable changes to `laravel-options` will be documented in this file
 
 - Fix non-autoload options will be removed after saved (#7)
 
+## Release version 2.2.0 - 2023-03-28
+
+Release version 2.2.0 - 2023-03-28
+
+- Add `only_autoload` config
+- Add `eager_load` config
+
 ## Release version 2.1.0 - 2023-03-22
 
 ### Release version 2.1.0 - 2023-03-22
