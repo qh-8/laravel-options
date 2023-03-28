@@ -21,8 +21,6 @@ class LaravelOptionsServiceProvider extends BaseServiceProvider
                 __DIR__ . '/../config/options.php' => config_path('options.php'),
             ], 'option-config');
         }
-
-        $this->app['options']->boot();
     }
 
     /**

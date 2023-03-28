@@ -54,6 +54,8 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     public function get(string $key, mixed $default = null): mixed
     {
+        $this->boot();
+
         if ($this->items->has($key)) {
             return $this->items->get($key)->payload;
         }
@@ -75,6 +77,8 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     public function set(array|string $key, $value = null, bool $autoload = null, bool $isLock = null): void
     {
+        $this->boot();
+
         if (is_array($key)) {
             $this->setMany($key, $autoload, $isLock);
             return;
@@ -177,6 +181,8 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     public function all(): array
     {
+        $this->boot();
+
         return $this->items->mapWithKeys(fn (Option $option) => [$option->name => $option->payload])->toArray();
     }
 
