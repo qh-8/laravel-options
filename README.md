@@ -22,6 +22,12 @@ Publish the migration file
 php artisan vendor:publish --tag=option-migrations
 ```
 
+Publish the config file
+
+```bash
+php artisan vendor:publish --tag=option-config
+```
+
 Create the `options` table via artisan migrate command
 
 ```bash
@@ -52,6 +58,16 @@ $this->app['options']['key'] // Array access: offsetGet
 $this->app['options']['key'] = 'value' // Array access: offsetSet.
 isset($this->app['options']['key']) // Array access: offsetExists.
 unset($this->app['options']['key']) // Array access: offsetUnset.
+```
+
+### Configuration
+
+```dotenv
+# Enable autoload options only.
+OPTIONS_ONLY_AUTOLOAD=true
+
+# Eager load options.
+OPTIONS_EAGER_LOAD=true
 ```
 
 ### Testing

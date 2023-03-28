@@ -3,7 +3,7 @@
 namespace Qh\LaravelOptions;
 
 use ArrayAccess;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Config\Repository as Config;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,14 +19,30 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     protected array $willRemoved = [];
 
-    public function __construct(protected Container $container)
+    protected bool $eagerLoad = false;
+
+    protected bool $onlyAutoload = true;
+
+    public function __construct(Config $config)
     {
         $this->items = new Collection();
+        $this->eagerLoad = $config->get('options.eager_load', false);
+        $this->onlyAutoload = $config->get('options.only_autoload', true);
     }
 
     public function boot(): void
     {
         rescue(fn () => $this->ensureOptionsIsLoaded());
+    }
+
+    public function setEagerLoad(bool $eagerLoad): void
+    {
+        $this->eagerLoad = $eagerLoad;
+    }
+
+    public function setOnlyAutoload(bool $onlyAutoload): void
+    {
+        $this->onlyAutoload = $onlyAutoload;
     }
 
     public function has(string $key): bool
@@ -40,6 +56,10 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
     {
         if ($this->items->has($key)) {
             return $this->items->get($key)->payload;
+        }
+
+        if (! $this->eagerLoad) {
+            return $default;
         }
 
         $item = Option::query()->where('name', $key)->first();
@@ -62,7 +82,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
         $option = $this->items->has($key)
             ? $this->items->get($key)
-            : Option::query()->firstOrNew(['name' => $key]);
+            : new Option(['name' => $key]);
 
         if ($option->locked) {
             return;
@@ -163,7 +183,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
     public function reload(): void
     {
         $this->items = Option::query()
-            ->where('autoload', true)
+            ->when($this->onlyAutoload, fn ($query) => $query->where('autoload', true))
             ->get()
             ->keyBy('name');
     }

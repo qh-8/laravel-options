@@ -204,4 +204,30 @@ class OptionsTest extends TestCase
 
         $this->assertDatabaseHas('options', ['name' => 'no_autoload']);
     }
+
+    public function testEagerLoad()
+    {
+        $this->repository->setEagerLoad(false);
+
+        $this->assertSame(null, $this->repository->get('no_autoload'));
+
+        $this->repository->setEagerLoad(true);
+
+        $this->assertSame('foo', $this->repository->get('no_autoload'));
+    }
+
+    public function testOnlyAutoload()
+    {
+        $this->repository->setOnlyAutoload(false);
+
+        $this->repository->reload();
+
+        $this->assertTrue($this->repository->has('no_autoload'));
+
+        $this->repository->setOnlyAutoload(true);
+
+        $this->repository->reload();
+
+        $this->assertFalse($this->repository->has('no_autoload'));
+    }
 }
