@@ -68,6 +68,9 @@ OPTIONS_ONLY_AUTOLOAD=true
 
 # Eager load options.
 OPTIONS_EAGER_LOAD=true
+
+# Custom model
+OPTIONS_EAGER_LOAD=App\Models\Option
 ```
 
 ### Testing

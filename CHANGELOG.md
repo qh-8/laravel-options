@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-options` will be documented in this file
 
+### Release version 2.3.0 - 2023-05-08
+
+- Add `model` config
+
 ### Release version 2.2.0 - 2023-03-28
 
 - Add `only_autoload` config
