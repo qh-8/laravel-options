@@ -4,9 +4,11 @@ namespace Qh\LaravelOptions;
 
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as Config;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use JsonSerializable;
 use Qh\LaravelOptions\Contracts\Repository as RepositoryContract;
 use Qh\LaravelOptions\Models\Option;
@@ -23,11 +25,14 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     protected bool $onlyAutoload = true;
 
+    protected string $model;
+
     public function __construct(Config $config)
     {
         $this->items = new Collection();
         $this->eagerLoad = $config->get('options.eager_load', false);
         $this->onlyAutoload = $config->get('options.only_autoload', true);
+        $this->model = $config->get('options.model', Option::class);
     }
 
     public function boot(): void
@@ -64,7 +69,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
             return $default;
         }
 
-        $item = Option::query()->where('name', $key)->first();
+        $item = $this->newQuery()->where('name', $key)->first();
 
         if ($item) {
             $this->items->put($key, $item);
@@ -188,7 +193,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
 
     public function reload(): void
     {
-        $this->items = Option::query()
+        $this->items = $this->newQuery()
             ->when($this->onlyAutoload, fn ($query) => $query->where('autoload', true))
             ->get()
             ->keyBy('name');
@@ -197,7 +202,7 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
     public function save(): void
     {
         $values = $this->items
-            ->map(fn (Option $option, string $name) => [
+            ->map(fn (Model $option, string $name) => [
                 'name' => $name,
                 'payload' => $option->getAttributes()['payload'],
                 'locked' => $option->locked ? 1 : 0,
@@ -206,17 +211,27 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
             ->values()
             ->all();
 
-        Option::query()->upsert(
+        $this->newQuery()->upsert(
             $values,
             ['name'],
             ['payload', 'locked', 'autoload']
         );
 
-        Option::query()
+        $this->newQuery()
             ->whereIn('name', $this->willRemoved)
             ->delete();
 
         $this->willRemoved = [];
+    }
+
+    public function model(): Model
+    {
+        return app($this->model);
+    }
+
+    public function newQuery(): Builder
+    {
+        return $this->model()->newQuery();
     }
 
     public function offsetExists($offset): bool

@@ -27,4 +27,15 @@ return [
 
     'eager_load' => env('OPTIONS_EAGER_LOAD', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Model
+    |--------------------------------------------------------------------------
+    |
+    | The model used to store options.
+    | Default: Qh\LaravelOptions\Models\Option::class
+    |
+    */
+
+    'model' => env('OPTIONS_MODEL', Qh\LaravelOptions\Models\Option::class),
 ];

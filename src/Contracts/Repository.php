@@ -2,6 +2,9 @@
 
 namespace Qh\LaravelOptions\Contracts;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 interface Repository
 {
     public function get(string $key, $default = null): mixed;
@@ -18,5 +21,11 @@ interface Repository
 
     public function all(): array;
 
+    public function save(): void;
+
     public function reload(): void;
+
+    public function model(): Model;
+
+    public function newQuery(): Builder;
 }
