@@ -70,7 +70,7 @@ OPTIONS_ONLY_AUTOLOAD=true
 OPTIONS_EAGER_LOAD=true
 
 # Custom model
-OPTIONS_EAGER_LOAD=App\Models\Option
+OPTIONS_MODEL=App\Models\Option
 ```
 
 ### Testing
