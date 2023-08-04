@@ -62,7 +62,9 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
         $this->boot();
 
         if ($this->items->has($key)) {
-            return $this->items->get($key)->payload;
+            $value = $this->items->get($key)->payload;
+            
+            return $value !== null && $value !== '' ? $value : $default;
         }
 
         if (! $this->eagerLoad) {
@@ -74,7 +76,9 @@ class Repository implements ArrayAccess, Arrayable, Jsonable, JsonSerializable, 
         if ($item) {
             $this->items->put($key, $item);
 
-            return $item->payload;
+            $value = $item->payload;
+            
+            return $value !== null && $value !== '' ? $value : $default;
         }
 
         return $default;
